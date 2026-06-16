@@ -31,3 +31,20 @@ if [ -f deploy/pixelwise.service ] && \
     sudo systemctl restart pixelwise
     sudo systemctl status pixelwise
 fi
+# Install Nginx site and deploy the frontend on prod
+if [ -f deploy/pixelwise.nginx ] && \
+    command -v nginx >/dev/null 2>&1 && \
+    id produser >/dev/null 2>&1; then
+    sudo mkdir -p /var/www/pixelwise
+    sudo cp -r frontend/* /var/www/pixelwise/
+    KEY=$(grep ^SECRET_API_KEY /opt/pixelwise/.env \
+        | cut -d= -f2)
+    sudo sed -i "s/REPLACE_ME/$KEY/" \
+        /var/www/pixelwise/app.js
+    sudo cp deploy/pixelwise.nginx \
+        /etc/nginx/sites-available/pixelwise
+    sudo ln -sf /etc/nginx/sites-available/pixelwise \
+        /etc/nginx/sites-enabled/pixelwise
+    sudo rm -f /etc/nginx/sites-enabled/default
+    sudo nginx -t && sudo systemctl reload nginx
+fi
