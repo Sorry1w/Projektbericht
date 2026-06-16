@@ -4,6 +4,8 @@ set -euo pipefail
 sudo apt update
 sudo apt install -y git python3 python3-pip \
   python3-venv curl
+sudo apt install -y git python3 python3-pip \
+    python3-venv curl nginx
 # Pull the pinned model artefact
 if [ -f .env ]; then
     set -a; source .env; set +a
